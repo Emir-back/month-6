@@ -12,7 +12,7 @@ from .serializers import (
     AuthValidateSerializer,
     ConfirmationSerializer
 )
-from .models import ConfirmationCode
+from .models import ConfirmationCode , CustomUser
 import random
 import string
 
@@ -47,13 +47,12 @@ class RegistrationAPIView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        username = serializer.validated_data['username']
+        email = serializer.validated_data['email']
         password = serializer.validated_data['password']
-
         # Use transaction to ensure data consistency
         with transaction.atomic():
-            user = User.objects.create_user(
-                username=username,
+            user =CustomUser.objects.create_user(
+                email=email,
                 password=password,
                 is_active=False
             )
@@ -83,7 +82,7 @@ class ConfirmUserAPIView(APIView):
         user_id = serializer.validated_data['user_id']
 
         with transaction.atomic():
-            user = User.objects.get(id=user_id)
+            user = CustomUser.objects.get(id=user_id)
             user.is_active = True
             user.save()
 
