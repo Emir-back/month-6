@@ -2,7 +2,8 @@ from collections import OrderedDict
 from django.db import transaction
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView 
+from .permissions import IsModeratorPermission
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
@@ -114,7 +115,12 @@ class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     pagination_class = CustomPagination
+    permission_classes = [IsModeratorPermission]
     lookup_field = 'id'
+
+
+    def perform_create(self, serializer):  
+        serializer.save(owner=self.request.user)
 
     def create(self, request, *args, **kwargs):
         serializer = ReviewValidateSerializer(data=request.data)
