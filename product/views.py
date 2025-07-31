@@ -21,6 +21,8 @@ from .serializers import (
     ReviewValidateSerializer
 )
 
+from .tasks import example_delay_task  # <- импорт задачи
+
 PAGE_SIZE = 5
 
 
@@ -163,3 +165,9 @@ class ProductWithReviewsAPIView(APIView):
 
         serializer = ProductWithReviewsSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+
+class RunExampleTaskAPIView(APIView):
+    def get(self, request):
+        example_delay_task.delay()
+        return Response({"status": "Задача Celery отправлена"})
